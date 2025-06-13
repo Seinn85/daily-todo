@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Daily To-Do List</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <h1>📅 Daily To-Do List</h1>
+
+  <input id="taskInput" placeholder="What do you need to do today?" />
+  <button onclick="addTodo()">Add Task</button>
+
+  <h2>Today’s Tasks</h2>
+  <ul id="todoList"></ul>
+
+  <script>
+    // Replace with your Supabase project values
+    const supabaseUrl = 'https://your-project-id.supabase.co';
+    const supabaseKey = 'your-anon-key';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Get today’s date in YYYY-MM-DD
+    function getTodayDate() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    async function addTodo() {
+      const input = document.getElementById('taskInput');
+      const task = input.value;
+      const today = getTodayDate();
+
+      if (task.trim() === '') return;
+
+      const { error } = await supabase
+        .from('todos')
+        .insert([{ task, date: today }]);
+
+      if (error) {
+        alert('❌ Error: ' + error.message);
+      } else {
+        input.value = '';
+        loadTodos();
+      }
+    }
+
+    async function loadTodos() {
+      const today = getTodayDate();
+      const { data, error } = await supabase
+        .from('todos')
+        .select('*')
+        .eq('date', today)
+        .order('id', { ascending: false });
+
+      const list = document.getElementById('todoList');
+      list.innerHTML = '';
+      data.forEach(todo => {
+        const li = document.createElement('li');
+        li.textContent = todo.task;
+        list.appendChild(li);
+      });
+    }
+
+    // Load today’s todos when the page loads
+    loadTodos();
+  </script>
+</body>
+</html>
