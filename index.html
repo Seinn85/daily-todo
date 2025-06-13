@@ -14,12 +14,11 @@
   <ul id="todoList"></ul>
 
   <script>
-    // Replace with your Supabase project values
+    // Replace with your actual Supabase project credentials
     const supabaseUrl = 'https://your-project-id.supabase.co';
-    const supabaseKey = 'your-anon-key';
+    const supabaseKey = 'your-anon-public-api-key';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Get today’s date in YYYY-MM-DD
     function getTodayDate() {
       return new Date().toISOString().split('T')[0];
     }
@@ -53,6 +52,11 @@
 
       const list = document.getElementById('todoList');
       list.innerHTML = '';
+      if (error) {
+        list.innerHTML = `<li>❌ Error: ${error.message}</li>`;
+        return;
+      }
+
       data.forEach(todo => {
         const li = document.createElement('li');
         li.textContent = todo.task;
@@ -60,7 +64,7 @@
       });
     }
 
-    // Load today’s todos when the page loads
+    // Load today’s todos on page load
     loadTodos();
   </script>
 </body>
